@@ -43,6 +43,10 @@ module Cucumber
           RbWorld.alias_adverb(adverb)
         end
       end
+      
+      def require_support_files(path)
+        @step_mother.load_code_files(Cli::Configuration.code_files_in_paths([path]))
+      end
 
       def step_definitions_for(code_file)
         begin

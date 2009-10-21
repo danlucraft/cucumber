@@ -26,6 +26,10 @@ module Cucumber
         def register_rb_step_definition(regexp, proc)
           @rb_language.register_rb_step_definition(regexp, proc)
         end
+        
+        def require_support_files(path)
+          @rb_language.require_support_files(path)
+        end
       end
 
       # Registers any number of +world_modules+ (Ruby Modules) and/or a Proc.
@@ -82,6 +86,10 @@ module Cucumber
       def AfterConfiguration(&proc)
         RbDsl.register_rb_hook('after_configuration', [], proc)
       end      
+      
+      def RequireSupportFiles(path)
+        RbDsl.require_support_files(path)
+      end
 
       # Registers a new Ruby StepDefinition. This method is aliased
       # to <tt>Given</tt>, <tt>When</tt> and <tt>Then</tt>, and

@@ -12,6 +12,20 @@ module Cucumber
       include Constantize
       
       attr_reader :options, :out_stream
+      
+      class << self
+        def code_files_in_paths(requires)
+          files = requires.map do |path|
+            path = path.gsub(/\\/, '/') # In case we're on windows. Globs don't work with backslashes.
+            path = path.gsub(/\/$/, '') # Strip trailing slash.
+            File.directory?(path) ? Dir["#{path}/**/*"] : path
+          end.flatten.uniq
+          files.reject! {|f| !File.file?(f)}
+          files.reject! {|f| File.extname(f) == '.feature' }
+          files.reject! {|f| f =~ /^http/}
+          files
+        end
+      end
 
       def initialize(out_stream = STDOUT, error_stream = STDERR)
         @out_stream   = out_stream
@@ -72,16 +86,9 @@ module Cucumber
 
       def all_files_to_load
         requires = @options[:require].empty? ? require_dirs : @options[:require]
-        files = requires.map do |path|
-          path = path.gsub(/\\/, '/') # In case we're on windows. Globs don't work with backslashes.
-          path = path.gsub(/\/$/, '') # Strip trailing slash.
-          File.directory?(path) ? Dir["#{path}/**/*"] : path
-        end.flatten.uniq
+        files = Configuration.code_files_in_paths(requires)
         remove_excluded_files_from(files)
-        files.reject! {|f| !File.file?(f)}
-        files.reject! {|f| File.extname(f) == '.feature' }
-        files.reject! {|f| f =~ /^http/}
-        files      
+        files
       end
       
       def step_defs_to_load
